@@ -25,7 +25,7 @@ Clients can then join/create a room. A list of public rooms is accessible, and r
 
 ## Quick Start
 
-Install the package using `npm i socket.io-rooms`.
+Install the package using `npm i @yacoubb/socket.io-rooms`.
 
 Import it into your project: `const {clientFactory, toRoomServer, codes} = require('socket.io-rooms')` or `import {clientFactory, toRoomServer, codes} from 'socket.io-rooms'`
 
