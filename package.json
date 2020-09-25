@@ -1,27 +1,27 @@
 {
-  "name": "@yacoubb/socket.io-rooms",
-  "version": "1.0.0",
-  "description": "Boilerplate code for creating a socket.io server with multi-room support.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yacoubb/socket.io-rooms.git"
-  },
-  "keywords": [
-    "socket.io"
-  ],
-  "author": "Yacoub Ahmed",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/yacoubb/socket.io-rooms/issues"
-  },
-  "homepage": "https://github.com/yacoubb/socket.io-rooms#readme",
-  "dependencies": {
-    "chalk": "^4.1.0",
-    "socket.io": "^2.3.0"
-  }
+	"name": "@yacoubb/socket.io-rooms",
+	"version": "1.0.1",
+	"description": "Boilerplate code for creating a socket.io server with multi-room support.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yacoubb/socket.io-rooms.git"
+	},
+	"keywords": [
+		"socket.io"
+	],
+	"author": "Yacoub Ahmed",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/yacoubb/socket.io-rooms/issues"
+	},
+	"homepage": "https://github.com/yacoubb/socket.io-rooms#readme",
+	"dependencies": {
+		"chalk": "^4.1.0",
+		"socket.io": "^2.3.0"
+	}
 }
