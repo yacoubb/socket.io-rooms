@@ -49,10 +49,12 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 				console.log(`socket ${socket.id} verified`);
 				socket.verified = true;
 				ack(true);
+				return true;
 			} else {
 				console.log(`socket ${socket.id} bad appid`);
 				ack(false);
 				socket.disconnect();
+				return false;
 			}
 		});
 		socket.use(([event, ...rest], next) => {
@@ -68,11 +70,14 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 				if (alphanumeric.test(username)) {
 					ack(true);
 					socket.username = username;
+					return true;
 				} else {
 					ack(false, ERR_USERNAME_ALPHANUMERIC);
+					return false;
 				}
 			} else {
 				ack(false, ERR_USERNAME_LENGTH);
+				return false;
 			}
 		});
 
@@ -89,40 +94,41 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 				true,
 				Object.keys(rooms()).filter((roomName) => rooms()[roomName].public),
 			);
+			return true;
 		});
 
 		socket.on('createRoom', async (ack) => {
 			if (socket.roomName !== undefined) {
 				ack(false, ERR_ALREADYINROOM);
-				return;
+				return false;
 			}
 
 			const roomInfo = await requestRoomInfo(socket);
 			if (!('roomName' in roomInfo) || !('public' in roomInfo) || !('password' in roomInfo) || !('maxPlayers' in roomInfo)) {
 				ack(false, ERR_BADROOMINFO);
-				return;
+				return false;
 			}
 
 			if (roomInfo.roomName === undefined || roomInfo.roomName === null || roomInfo.roomName.length == 0) {
 				ack(false, ERR_ROOMNAME_EMPTY);
-				return;
+				return false;
 			}
 
 			if (roomInfo.roomName in rooms()) {
 				ack(false, ERR_ROOMALREADYEXIST);
-				return;
+				return false;
 			}
 			if (roomInfo.roomName.length < usernameMinLength || roomInfo.roomName.length > usernameMaxLength) {
 				ack(false, ERR_ROOMNAME_LENGTH);
-				return;
+				return false;
 			}
 			if (!alphanumeric.test(roomInfo.roomName)) {
 				ack(false, ERR_ROOMNAME_ALPHANUMERIC);
-				return;
+				return false;
 			}
 			if (roomInfo.maxPlayers === undefined || roomInfo.maxPlayers === undefined || roomInfo.maxPlayers < 1) {
 				ack(false, ERR_MIN_MAXPLAYERS);
-				return;
+				return false;
 			}
 
 			roomInfo.owner = socket.id;
@@ -131,15 +137,17 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 			socket.roomName = roomInfo.roomName;
 			Object.assign(rooms()[roomInfo.roomName], roomInfo);
 			ack(true, roomInfo.roomName);
+			return true;
 		});
 
 		socket.on('join', async (roomName, ack) => {
 			if (socket.roomName !== undefined) {
 				ack(false, ERR_ALREADYINROOM);
+				return false;
 			}
 			if (!(roomName in rooms())) {
 				ack(false, ERR_ROOMNOTEXIST);
-				return;
+				return false;
 			}
 
 			if (rooms()[roomName].password.length > 0) {
@@ -149,19 +157,20 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 					console.log('got good password');
 				} else {
 					ack(false, ERR_BADPASSWORD);
-					return;
+					return false;
 				}
 			}
 
 			if (rooms()[roomName].length >= rooms()[roomName].maxPlayers) {
 				ack(false, ERR_ROOMFULL);
-				return;
+				return false;
 			}
 
 			socket.join(roomName);
 			socket.roomName = roomName;
 			socket.to(roomName).emit('info', EVENT_PLAYERJOINED, socket.id, socket.username);
 			ack(true);
+			return true;
 		});
 
 		socket.use(([event, ...rest], next) => {
@@ -190,6 +199,7 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 			socket.leave(socket.roomName);
 			delete socket.roomName;
 			ack(true);
+			return true;
 		});
 
 		socket.on('roomInfo', (ack) => {
@@ -204,6 +214,7 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 				players: `${Object.keys(sockets).length}/${maxPlayers}`,
 			};
 			ack(true, roomInfo);
+			return true;
 		});
 
 		socket.on('players', (ack) => {
@@ -211,26 +222,28 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 			const playerList = {};
 			Object.keys(rooms()[socket.roomName].sockets).forEach((socketId) => (playerList[socketId] = io.sockets.sockets[socketId].username));
 			ack(true, playerList);
+			return true;
 		});
 
 		socket.on('message', (message, ack) => {
 			io.to(socket.roomName).emit('message', socket.username, message);
 			ack(true);
+			return true;
 		});
 
 		socket.on('kick', (username, ack) => {
 			const roomPlayers = Object.keys(rooms()[socket.roomName].sockets).map((socketId) => io.sockets.sockets[socketId].username);
 			if (roomPlayers.indexOf(socket.username) !== 0) {
 				ack(false, ERR_NOTROOMOWNER);
-				return;
+				return false;
 			}
 			if (username === undefined || username === null || username.length === 0) {
 				ack(false, ERR_KICK_USERNAMEEMPTY);
-				return;
+				return false;
 			}
 			if (roomPlayers.indexOf(username) === -1) {
 				ack(false, ERR_KICK_NOTINROOM);
-				return;
+				return false;
 			}
 			Object.keys(rooms()[socket.roomName].sockets).some((socketId) => {
 				if (io.sockets.sockets[socketId].username === username) {
@@ -275,7 +288,7 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 
 	const onEvent = (socket, eventName, callback) => {
 		// use this function to listen to when other socket.on events have completed
-		// useful for running initialisation code to run after createRoom
+		// useful for running initialisation code to run after createRoom or join
 		const oldCallback = socket.listeners(eventName)[0];
 		const chainedCallback = async (...args) => {
 			await oldCallback(...args);
