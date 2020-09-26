@@ -299,30 +299,30 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
 	const registerCommands = (newCommands) => {
 		Object.assign(commands, newCommands);
 		return Object.keys(commands);
-    };
-    
-    socket.on('autojoin', targetUsername => {
-        await register(targetUsername);
-        if (targetUsername === 'owner') {
-            // have to hack room creation
-            const oldListeners = socket.listeners('roomInfo');
-            for(const listener of oldListeners) {
-                socket.off('roomInfo', listener)
-            }
+	};
 
-            socket.on('roomInfo',  (ack) => {
-                ack({roomName:'autoRoom', public: false, maxPlayers: 100, password: ''});
-            });
-            await createRoom();
-            
-            socket.off('roomInfo', socket.listeners('roomInfo')[0]);
-            for(const listener of oldListeners) {
-                socket.on('roomInfo', listener)
-            }
-        } else {
-            join('autoRoom')
-        }
-    })
+	socket.on('autojoin', async (targetUsername) => {
+		await register(targetUsername);
+		if (targetUsername === 'owner') {
+			// have to hack room creation
+			const oldListeners = socket.listeners('roomInfo');
+			for (const listener of oldListeners) {
+				socket.off('roomInfo', listener);
+			}
+
+			socket.on('roomInfo', (ack) => {
+				ack({ roomName: 'autoRoom', public: false, maxPlayers: 100, password: '' });
+			});
+			await createRoom();
+
+			socket.off('roomInfo', socket.listeners('roomInfo')[0]);
+			for (const listener of oldListeners) {
+				socket.on('roomInfo', listener);
+			}
+		} else {
+			join('autoRoom');
+		}
+	});
 
 	return { socket, commands, callbacks, registerCommands, setLogger, logger, logErr, logEventCode, logErrorCode, chalk };
 };
