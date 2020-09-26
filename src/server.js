@@ -24,7 +24,7 @@ const {
 } = require('./codes');
 
 module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
-	const rooms = {};
+	const rooms = () => io.sockets.adapter.rooms;
 	const alphanumeric = /^\w+$/;
 
 	io.on('connection', (socket) => {
