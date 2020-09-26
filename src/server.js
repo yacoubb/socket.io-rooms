@@ -303,5 +303,16 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 		socket.on(eventName, chainedCallback);
 	};
 
-	return { roomOf, playersOf, autoJoin, onEvent };
+	const beforeEvent = (socket, eventName, callback) => {
+		// use this function to executre code before other socket.io listeners run
+		const oldCallback = socket.listeners(eventName)[0];
+		const chainedCallback = async (...args) => {
+			await callback(...args);
+			oldCallback(...args);
+		};
+		socket.off(eventName, oldCallback);
+		socket.on(eventName, chainedCallback);
+	};
+
+	return { roomOf, playersOf, autoJoin, onEvent, beforeEvent };
 };
