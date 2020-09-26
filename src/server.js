@@ -273,5 +273,17 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 		}
 	};
 
-	return { roomOf, playersOf, autoJoin };
+	const onEvent = (socket, eventName, callback) => {
+		// use this function to listen to when other socket.on events have completed
+		// useful for running initialisation code to run after createRoom
+		const oldCallback = socket.listeners(eventName)[0];
+		const chainedCallback = async (...args) => {
+			await oldCallback(...args);
+			callback(...args);
+		};
+		socket.off(eventName, oldCallback);
+		socket.on(eventName, chainedCallback);
+	};
+
+	return { roomOf, playersOf, autoJoin, onEvent };
 };
