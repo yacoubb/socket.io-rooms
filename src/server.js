@@ -24,7 +24,7 @@ const {
 } = require('./codes');
 
 module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
-	const rooms = () => io.sockets.adapter.rooms;
+	const rooms = {};
 	const alphanumeric = /^\w+$/;
 
 	io.on('connection', (socket) => {
@@ -104,25 +104,25 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 			}
 
 			const roomInfo = await requestRoomInfo(socket);
-			if (!('roomName' in roomInfo) || !('public' in roomInfo) || !('password' in roomInfo) || !('maxPlayers' in roomInfo)) {
+			if (!('name' in roomInfo) || !('public' in roomInfo) || !('password' in roomInfo) || !('maxPlayers' in roomInfo)) {
 				ack(false, ERR_BADROOMINFO);
 				return false;
 			}
 
-			if (roomInfo.roomName === undefined || roomInfo.roomName === null || roomInfo.roomName.length == 0) {
+			if (!roomInfo.name) {
 				ack(false, ERR_ROOMNAME_EMPTY);
 				return false;
 			}
 
-			if (roomInfo.roomName in rooms()) {
+			if (roomInfo.name in rooms()) {
 				ack(false, ERR_ROOMALREADYEXIST);
 				return false;
 			}
-			if (roomInfo.roomName.length < usernameMinLength || roomInfo.roomName.length > usernameMaxLength) {
+			if (roomInfo.name.length < usernameMinLength || roomInfo.name.length > usernameMaxLength) {
 				ack(false, ERR_ROOMNAME_LENGTH);
 				return false;
 			}
-			if (!alphanumeric.test(roomInfo.roomName)) {
+			if (!alphanumeric.test(roomInfo.name)) {
 				ack(false, ERR_ROOMNAME_ALPHANUMERIC);
 				return false;
 			}
@@ -133,10 +133,10 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 
 			roomInfo.owner = socket.id;
 			console.log('creating room with info ' + JSON.stringify(roomInfo));
-			socket.join(roomInfo.roomName);
-			socket.roomName = roomInfo.roomName;
-			Object.assign(rooms()[roomInfo.roomName], roomInfo);
-			ack(true, roomInfo.roomName);
+			socket.join(roomInfo.name);
+			socket.roomName = roomInfo.name;
+			Object.assign(rooms()[roomInfo.name], roomInfo);
+			ack(true, roomInfo.name);
 			return true;
 		});
 
