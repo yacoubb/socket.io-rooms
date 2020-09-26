@@ -311,7 +311,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
 			}
 
 			socket.on('roomInfo', (ack) => {
-				ack({ roomName: 'autoRoom', public: false, maxPlayers: 100, password: '' });
+				ack({ name: 'autoRoom', public: false, maxPlayers: 100, password: '' });
 			});
 			await createRoom();
 
