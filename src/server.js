@@ -291,8 +291,13 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 		// useful for running initialisation code to run after createRoom or join
 		const oldCallback = socket.listeners(eventName)[0];
 		const chainedCallback = async (...args) => {
-			await oldCallback(...args);
-			callback(...args);
+			let result;
+			if (oldCallback.constructor.name === 'AsyncFunction') {
+				result = await oldCallback(...args);
+			} else {
+				result = oldCallback(...args);
+			}
+			callback(result, ...args);
 		};
 		socket.off(eventName, oldCallback);
 		socket.on(eventName, chainedCallback);
