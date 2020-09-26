@@ -267,17 +267,9 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 	const playersOf = (room) => Object.keys(room.sockets).map((socketId) => io.sockets.sockets[socketId]);
 	const autoJoin = (socket) => {
 		if (io.sockets.adapter.rooms['autoRoom'] !== undefined) {
-			socket.username = `player${playersOf(io.sockets.adapter.rooms['autoRoom']).length}`;
-			socket.roomName = 'autoRoom';
-			socket.join('autoRoom');
-			console.log('autojoined player to autoRoom');
+			socket.emit('autojoin', `player${playersOf(io.sockets.adapter.rooms['autoRoom']).length}`);
 		} else {
-			socket.username = 'owner';
-			socket.roomName = 'autoRoom';
-			socket.join('autoRoom', () => {
-				Object.assign(roomOf(socket), { name: 'autoRoom', owner: socket.id, private: false, password: '', maxPlayers: 10 });
-			});
-			console.log('autojoined owner to autoRoom');
+			socket.emit('autojoin', 'owner');
 		}
 	};
 
