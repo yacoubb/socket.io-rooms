@@ -277,7 +277,7 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 	};
 
 	const roomOf = (socket) => io.sockets.adapter.rooms[socket.roomName];
-	const playersOf = (room) => Object.keys(room.sockets).map((socketId) => io.sockets.sockets[socketId]);
+	const playersOf = (room) => (room !== undefined ? Object.keys(room.sockets).map((socketId) => io.sockets.sockets[socketId]) : []);
 	const autoJoin = (socket) => {
 		if (io.sockets.adapter.rooms['autoRoom'] !== undefined) {
 			socket.emit('autojoin', `player${playersOf(io.sockets.adapter.rooms['autoRoom']).length}`);
