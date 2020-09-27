@@ -66,6 +66,10 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 		});
 
 		socket.on('register', (username, ack) => {
+			if (socket.roomName !== undefined) {
+				ack(false, ERR_ALREADYINROOM);
+				return false;
+			}
 			if (username && username.length >= usernameMinLength && username.length < usernameMaxLength) {
 				if (alphanumeric.test(username)) {
 					ack(true);
