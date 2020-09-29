@@ -96,7 +96,11 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
 		socket.on('roomList', (ack) => {
 			ack(
 				true,
-				Object.keys(rooms()).filter((roomName) => rooms()[roomName].public),
+				Object.values(rooms())
+					.filter((room) => room.public)
+					.map((room) => {
+						return { name: room.name, passwordProtected: room.password.length > 0, currentPlayers: playersOf(room).length, maxPlayers: room.maxPlayers };
+					}),
 			);
 			return true;
 		});
