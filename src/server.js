@@ -27,6 +27,9 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
     const rooms = () => io.sockets.adapter.rooms
     const alphanumeric = /^\w+$/
 
+    console.log('roomifying server with config:')
+    console.log({ appId, usernameMaxLength, usernameMinLength })
+
     io.on('connection', (socket) => {
         console.log('a user connected')
         socket.use((packet, next) => {
