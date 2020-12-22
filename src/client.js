@@ -2,7 +2,11 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
     const { connect } = require('socket.io-client')
     const chalkModule = require('chalk')
     const chalk = new chalkModule.Instance({ level: 2 })
-    const socket = connect(`${serverAddress}:${port}`)
+    let fullAddress = serverAddress
+    if (port) {
+        fullAddress = `${serverAddress}:${port}`
+    }
+    const socket = connect(fullAddress)
     const {
         EVENT_PLAYERJOINED,
         EVENT_PLAYERLEFT,
