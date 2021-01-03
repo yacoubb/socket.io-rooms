@@ -158,7 +158,7 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
                 io.emit('addRoom', {
                     name: roomInfo.name,
                     passwordProtected: roomInfo.password.length > 0,
-                    currentPlayers: playersOf(roomInfo).length,
+                    currentPlayers: 1,
                     maxPlayers: roomInfo.maxPlayers,
                 })
             }
