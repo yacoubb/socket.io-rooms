@@ -153,6 +153,15 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
             socket.roomName = roomInfo.name
             Object.assign(rooms()[roomInfo.name], roomInfo)
             ack(true, roomInfo.name)
+
+            if (roomInfo.public) {
+                io.emit('addRoom', {
+                    name: roomInfo.name,
+                    passwordProtected: roomInfo.password.length > 0,
+                    currentPlayers: playersOf(roomInfo).length,
+                    maxPlayers: roomInfo.maxPlayers,
+                })
+            }
             return true
         })
 
@@ -218,6 +227,11 @@ module.exports = (io, { appId, usernameMaxLength, usernameMinLength }) => {
                     socket
                         .to(socket.roomName)
                         .emit('info', EVENT_NEWOWNER, playerList[nextOwnerIndex], io.sockets.sockets[playerList[nextOwnerIndex]].username)
+                } else {
+                    // last player of this room left, notify players
+                    if (rooms()[socket.roomName].public) {
+                        io.emit('removeRoom', socket.roomName)
+                    }
                 }
             }
 
