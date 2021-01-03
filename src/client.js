@@ -40,7 +40,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
     }
 
     setTimeout(() => {
-        logger(`attempting connection to server at: ${serverAddress}:${port}`)
+        logger(`attempting connection to server at: ${fullAddress}`)
     }, 1)
 
     socket.on('handshake', () => {
@@ -220,7 +220,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
         return new Promise((resolve, reject) => {
             socket.emit('createRoom', (success, data) => {
                 if (success) {
-                    resolve(`created room ${data}`)
+                    resolve(data)
                 } else {
                     reject(data)
                 }
