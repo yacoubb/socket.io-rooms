@@ -40,7 +40,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
     }
 
     const infoColor = chalk.blue
-    const serverColor = chalk.hex('#8A4FFF')
+    const serverColor = chalk.magentaBright
     const errColor = chalk.red
     const messageColor = chalk.yellow
 
