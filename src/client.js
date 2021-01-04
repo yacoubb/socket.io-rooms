@@ -39,31 +39,36 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
         logErr = newLogErr
     }
 
+    const infoColor = chalk.blue
+    const serverColor = chalk.hex('#8A4FFF')
+    const errColor = chalk.red
+    const messageColor = chalk.yellow
+
     setTimeout(() => {
-        logger(`attempting connection to server at: ${fullAddress}`)
+        logger(`${infoColor('[info]')} attempting connection to server at: ${fullAddress}`)
     }, 1)
 
     socket.on('handshake', () => {
         logger('connected to server')
         socket.emit('handshake', appId, (success) => {
             if (success) {
-                logger('verified')
+                logger(`${serverColor('[server]')} verified`)
             } else {
-                logger('not verified')
+                logger(`${serverColor('[server]')} not verified - double check server address`)
             }
         })
     })
 
     socket.on('message', (username, message) => {
-        logger(`${chalk.yellow('[' + username + ']')}: ${message}`)
+        logger(`${messageColor('[' + username + ']')}: ${message}`)
     })
 
     socket.on('kicked', () => {
-        logger(`${chalk.red('you were kicked!')}`)
+        logger(`${serverColor('[server]')} ${errColor('you were kicked!')}`)
     })
 
     socket.on('disconnect', () => {
-        logger('disconnected from server')
+        logger(`${infoColor('[info]')} disconnected from server`)
     })
 
     socket.on('info', (eventCode, ...args) => {
@@ -79,22 +84,22 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
         switch (eventCode) {
             case EVENT_PLAYERJOINED:
                 ;[id, username] = args
-                logger(`${chalk.red('[server]')} ${username} joined`)
+                logger(`${serverColor('[server]')} ${username} joined`)
                 break
             case EVENT_PLAYERLEFT:
                 ;[id, username] = args
-                logger(`${chalk.red('[server]')} ${username} left`)
+                logger(`${serverColor('[server]')} ${username} left`)
                 break
             case EVENT_PLAYERKICKED:
                 ;[id, username] = args
-                logger(`${chalk.red('[server]')} ${username} was kicked!`)
+                logger(`${serverColor('[server]')} ${username} was kicked!`)
                 break
             case EVENT_NEWOWNER:
                 ;[id, username] = args
-                logger(`${chalk.red('[server]')} ${username} is the new room owner`)
+                logger(`${serverColor('[server]')} ${username} is the new room owner`)
                 break
             default:
-                logger(`${chalk.red('[server]')} info event: ${eventCode}, args: ${args}`)
+                logger(`${serverColor('[server]')} info event: ${eventCode}, args: ${args}`)
                 break
         }
     }
@@ -102,58 +107,58 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
     const logErrorCode = (errorCode, ...args) => {
         switch (errorCode) {
             case ERR_ALREADYINROOM:
-                logErr(`you're already connected to a room`)
+                logErr(`${errColor('[err]')} you're already connected to a room`)
                 break
             case ERR_BADPASSWORD:
-                logErr(`password incorrect`)
+                logErr(`${errColor('[err]')} password incorrect`)
                 break
             case ERR_BADROOMINFO:
-                logErr(`bad roomInfo format`)
+                logErr(`${errColor('[err]')} bad roomInfo format`)
                 break
             case ERR_KICK_NOTINROOM:
-                logErr(`player ${args[0]} is not in this room`)
+                logErr(`${errColor('[err]')} player ${args[0]} is not in this room`)
                 break
             case ERR_KICK_USERNAMEEMPTY:
-                logErr(`kick [username] - username cannot be empty`)
+                logErr(`${errColor('[err]')} kick [username] - username cannot be empty`)
                 break
             case ERR_MIN_MAXPLAYERS:
-                logErr(`maxPlayers must be at least 1`)
+                logErr(`${errColor('[err]')} maxPlayers must be at least 1`)
                 break
             case ERR_NOTINROOM:
-                logErr(`you're not in a room`)
+                logErr(`${errColor('[err]')} you're not in a room`)
                 break
             case ERR_NOTREGISTERED:
-                logErr(`you're not registered`)
+                logErr(`${errColor('[err]')} you're not registered`)
                 break
             case ERR_NOTROOMOWNER:
-                logErr(`you're not the room owner`)
+                logErr(`${errColor('[err]')} you're not the room owner`)
                 break
             case ERR_NOTVERIFIED:
-                logErr(`you're not verified - double check this is the right server address`)
+                logErr(`${errColor('[err]')} you're not verified - double check this is the right server address`)
                 break
             case ERR_ROOMALREADYEXIST:
-                logErr(`a room with the name ${args[0]} already exists`)
+                logErr(`${errColor('[err]')} a room with the name ${args[0]} already exists`)
                 break
             case ERR_ROOMFULL:
-                logErr(`room full`)
+                logErr(`${errColor('[err]')} room full`)
                 break
             case ERR_ROOMNAME_ALPHANUMERIC:
-                logErr(`room name must be alphanumeric`)
+                logErr(`${errColor('[err]')} room name must be alphanumeric`)
                 break
             case ERR_ROOMNAME_EMPTY:
-                logErr(`room name cannot be empty`)
+                logErr(`${errColor('[err]')} room name cannot be empty`)
                 break
             case ERR_ROOMNAME_LENGTH:
-                logErr(`room name must be between ${usernameMinLength} and ${usernameMaxLength} characters long`)
+                logErr(`${errColor('[err]')} room name must be between ${usernameMinLength} and ${usernameMaxLength} characters long`)
                 break
             case ERR_ROOMNOTEXIST:
-                logErr(`room ${args[0]} doesn't exist`)
+                logErr(`${errColor('[err]')} room ${args[0]} doesn't exist`)
                 break
             case ERR_USERNAME_ALPHANUMERIC:
-                logErr(`username must be alphanumeric`)
+                logErr(`${errColor('[err]')} username must be alphanumeric`)
                 break
             case ERR_USERNAME_LENGTH:
-                logErr(`username must be between ${usernameMinLength} and ${usernameMaxLength} characters long`)
+                logErr(`${errColor('[err]')} username must be between ${usernameMinLength} and ${usernameMaxLength} characters long`)
                 break
             default:
                 logErr(errorCode)
@@ -165,7 +170,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
         return new Promise((resolve, reject) => {
             socket.emit('register', username, (success, data) => {
                 if (success) {
-                    resolve(`registered username ${username}`)
+                    resolve(username)
                 } else {
                     reject(data)
                 }
@@ -189,7 +194,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
         return new Promise((resolve, reject) => {
             socket.emit('join', roomName, (success, data) => {
                 if (success) {
-                    resolve(`joined room ${roomName}`)
+                    resolve(roomName)
                 } else {
                     reject(data)
                 }
@@ -208,7 +213,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
         return new Promise((resolve, reject) => {
             socket.emit('leave', (success, data) => {
                 if (success) {
-                    resolve(`left room`)
+                    resolve()
                 } else {
                     reject(data)
                 }
