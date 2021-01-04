@@ -49,7 +49,7 @@ module.exports = ({ port, appId, serverAddress, usernameMinLength, usernameMaxLe
     }, 1)
 
     socket.on('handshake', () => {
-        logger('connected to server')
+        logger(`${infoColor('[info]')} connected to server`)
         socket.emit('handshake', appId, (success) => {
             if (success) {
                 logger(`${serverColor('[server]')} verified`)

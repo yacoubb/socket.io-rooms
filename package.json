@@ -1,6 +1,6 @@
 {
     "name": "@yacoubb/socket.io-rooms",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "description": "Boilerplate code for creating a socket.io server with multi-room support.",
     "main": "index.js",
     "scripts": {
